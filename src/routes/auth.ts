@@ -1,6 +1,6 @@
 //const User = require("../model/User");
 import express from "express";
-import User from '../model/User';
+import {User} from '../entity/User';
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { registerValidation, loginValidation } = require("../validation");
@@ -13,23 +13,23 @@ router.post("/register", async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   //Check username, İf Username has been registered, return error
-  const userNameExist = await User.findOne({ userName: req.body.userName });
-  if (userNameExist) return res.status(400).send("Username already exists");
+  const emailExist = await User.findOne({ email: req.body.email });
+  if (emailExist) return res.status(400).send("Email already exists");
 
   //Encrypt password
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
-  const user = new User({
-    name: req.body.name,
-    surname: req.body.surname,
-    userName: req.body.userName,
-    password: hashedPassword,
-  });
-  try {
-    // Save Mongo Db
+  const user = new User();
+  
+    user.name = req.body.name,
+    user.surname = req.body.surname,
+    user.email = req.body.email,
+    user. password =  hashedPassword,
+  
+  try{
     await user.save().then((res) => console.log("res:", res));
-    res.send({ user: user._id });
+    res.send({ user: user.id });
   } catch (error) {
     res.status(400).send(error);
   }
@@ -41,7 +41,7 @@ router.post("/login", async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   //Check Is the user registered? 
-  const user = await User.findOne({ userName: req.body.userName });
+  const user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(400).send("Username is not found");
 
   //Check password
@@ -50,11 +50,11 @@ router.post("/login", async (req, res) => {
 
   //Create jwt token
   const token = jwt.sign(
-    { _id: user._id, browser: req.headers["user-agent"] },
+    { _id: user.id, browser: req.headers["user-agent"] },
     process.env.JWT_TOKEN
   );
   
-  req.session.userID = user._id;
+  req.session.userID = user.id;
   req.session.browser = req.headers["user-agent"];
 
   //Set token to cookie

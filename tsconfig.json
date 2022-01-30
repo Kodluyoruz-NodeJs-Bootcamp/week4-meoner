@@ -21,6 +21,8 @@
       "forceConsistentCasingInFileNames": true,
       "allowUnreachableCode": true,
        "useUnknownInCatchVariables": false,
+       "experimentalDecorators": true,
+       "strictPropertyInitialization": false
   },
     "include": [
       "src/**/*.ts",

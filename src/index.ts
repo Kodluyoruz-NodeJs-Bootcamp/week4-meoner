@@ -7,12 +7,13 @@ import session from "express-session";
 //Import Routes
 import authRoute from "./routes/auth";
 import homeRoute from "./routes/home";
+import { createConnection } from "typeorm";
 
 const app = express();
+createConnection();
 const router = express.Router();
 
 dotenv.config();
-console.log("XXXXXXX", process.env);
 
 //Connect to DB
 mongoose
